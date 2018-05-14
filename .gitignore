@@ -20,6 +20,7 @@ rqbench
 _obj
 _test
 .vagrant
+.idea
 
 # Logs
 *.log
