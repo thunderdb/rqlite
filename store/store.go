@@ -157,10 +157,11 @@ type Store struct {
 
 	logger *log.Logger
 
-	SnapshotThreshold uint64
-	SnapshotInterval  time.Duration
-	HeartbeatTimeout  time.Duration
-	ApplyTimeout      time.Duration
+	SnapshotThreshold  uint64
+	SnapshotInterval   time.Duration
+	HeartbeatTimeout   time.Duration
+	ApplyTimeout       time.Duration
+	LeaderLeaseTimeout time.Duration
 }
 
 // StoreConfig represents the configuration of the underlying Store.
@@ -451,14 +452,15 @@ func (s *Store) Stats() (map[string]interface{}, error) {
 			"node_id": leaderID,
 			"addr":    s.LeaderAddr(),
 		},
-		"apply_timeout":      s.ApplyTimeout.String(),
-		"heartbeat_timeout":  s.HeartbeatTimeout.String(),
-		"snapshot_threshold": s.SnapshotThreshold,
-		"metadata":           s.meta,
-		"nodes":              nodes,
-		"dir":                s.raftDir,
-		"sqlite3":            dbStatus,
-		"db_conf":            s.dbConf,
+		"apply_timeout":        s.ApplyTimeout.String(),
+		"heartbeat_timeout":    s.HeartbeatTimeout.String(),
+		"leader_lease_timeout": s.LeaderLeaseTimeout.String(),
+		"snapshot_threshold":   s.SnapshotThreshold,
+		"metadata":             s.meta,
+		"nodes":                nodes,
+		"dir":                  s.raftDir,
+		"sqlite3":              dbStatus,
+		"db_conf":              s.dbConf,
 	}
 	return status, nil
 }
@@ -794,6 +796,9 @@ func (s *Store) raftConfig() *raft.Config {
 	}
 	if s.HeartbeatTimeout != 0 {
 		config.HeartbeatTimeout = s.HeartbeatTimeout
+	}
+	if s.LeaderLeaseTimeout != 0 {
+		config.LeaderLeaseTimeout = s.LeaderLeaseTimeout
 	}
 	return config
 }

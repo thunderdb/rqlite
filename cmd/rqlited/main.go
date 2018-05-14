@@ -76,6 +76,7 @@ var raftSnapThreshold uint64
 var raftHeartbeatTimeout string
 var raftApplyTimeout string
 var raftOpenTimeout string
+var raftLeaderLeaseTimeout string
 var showVersion bool
 var cpuProfile string
 var memProfile string
@@ -109,6 +110,7 @@ func init() {
 	flag.StringVar(&raftHeartbeatTimeout, "raft-timeout", "1s", "Raft heartbeat timeout")
 	flag.StringVar(&raftApplyTimeout, "raft-apply-timeout", "10s", "Raft apply timeout")
 	flag.StringVar(&raftOpenTimeout, "raft-open-timeout", "120s", "Time for initial Raft logs to be applied. Use 0s duration to skip wait")
+	flag.StringVar(&raftLeaderLeaseTimeout, "raft-leader-lease-timeout", "500ms", "Raft leader lease timeout")
 	flag.Uint64Var(&raftSnapThreshold, "raft-snap", 8192, "Number of outstanding log entries that trigger snapshot")
 	flag.StringVar(&cpuProfile, "cpu-profile", "", "Path to file for CPU profiling information")
 	flag.StringVar(&memProfile, "mem-profile", "", "Path to file for memory profiling information")
@@ -183,6 +185,10 @@ func main() {
 	str.ApplyTimeout, err = time.ParseDuration(raftApplyTimeout)
 	if err != nil {
 		log.Fatalf("failed to parse Raft apply timeout %s: %s", raftApplyTimeout, err.Error())
+	}
+	str.LeaderLeaseTimeout, err = time.ParseDuration(raftLeaderLeaseTimeout)
+	if err != nil {
+		log.Fatalf("failed to prase Raft leader lease timeout %s: %s", raftLeaderLeaseTimeout, err.Error())
 	}
 
 	// Determine join addresses, if necessary.
